@@ -10,24 +10,29 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aap.demo.model.Emp;
+import com.aap.demo.repository.APIHandlerRepository;
 import com.aap.demo.repository.EmpRepository;
 import com.aap.demo.service.Producer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
-@RequestMapping(value = "/kafka")
+@RequestMapping(value = "/api")
 public class KafkaController {
 
     private final Producer producer;
     private static final Logger logger = LoggerFactory.getLogger(KafkaController.class);    
     @Autowired
     EmpRepository empRepo;
+    
+    @Autowired
+    APIHandlerRepository apiHandlerRepository;
 
     @Autowired
     KafkaController(Producer producer) {
@@ -62,5 +67,11 @@ public class KafkaController {
     	logger.info(result);
 		return new ResponseEntity<>(result, HttpStatus.OK);
 
+    }
+    
+    @PostMapping(value="/process", consumes = "text/plain", produces = "text/plain")
+    public ResponseEntity<String> process(@RequestBody String payload, @RequestParam("interfaceCode") String interfaceCode){
+    	String result = apiHandlerRepository.processAPI(interfaceCode, payload);
+    	return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
