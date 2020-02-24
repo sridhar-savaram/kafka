@@ -2,8 +2,11 @@ package com.aap.demo.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+
+import com.aap.demo.repository.MessageRepository;
 
 import java.io.IOException;
 
@@ -11,9 +14,13 @@ import java.io.IOException;
 public class Consumer {
 
     private final Logger logger = LoggerFactory.getLogger(Producer.class);
+    @Autowired
+    MessageRepository messageRepo;
 
     @KafkaListener(topics = "users", groupId = "group_id")
     public void consume(String message) throws IOException {
         logger.info(String.format("#### -> Consumed message -> %s", message));
+        messageRepo.save(message);
+        
     }
 }
